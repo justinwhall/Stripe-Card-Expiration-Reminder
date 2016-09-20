@@ -372,4 +372,3 @@ class Stripe_Card_Reminder_Admin {
 	}
 
 }
-

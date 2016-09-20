@@ -42,6 +42,4 @@ class Stripe_Card_Reminder_i18n {
 
 	}
 
-
-
 }
