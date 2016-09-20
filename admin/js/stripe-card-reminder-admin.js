@@ -5,11 +5,15 @@
 
 		var customers = {};
 
-		$( ".scr-date-picker" ).datepicker();
+		$( ".scr-date-picker" ).datepicker( {
+			dateFormat: 'mm/dd/yy'
+		} );
 
 		// Query customers 
 		$('#scr-submit-report').on('click', function(event) {
 			event.preventDefault();
+
+			$('#scr-no-results').hide();
 
 			var searchDate = $('.scr-date-picker').val();
 			var data = {
@@ -19,18 +23,23 @@
 				nonce: ajax_object.ajax_nonce 
 			};
 
-			$('#scr-results').css('opacity', 0);
+			$('#scr-results').hide();
 			$('.scr-loading').show();
 
 			$.ajax({
 				url: ajax_object.ajax_url,
 				data: data,
 				success:function(data){
+					console.log(data);
 					$('.scr-loading').hide();
-					$('#scr-results').fadeTo('fast', 1);
-					$('#customer-json').data('customers', data);
-					customers = data;
-					appendCustomers( data );
+					if (data) {
+						$('#scr-results').show();
+						$('#customer-json').data('customers', data);
+						customers = data;
+						appendCustomers( data );
+					} else {
+						$('#scr-no-results').show();
+					}
 				}
 			});
 		

@@ -1,5 +1,6 @@
-#scr-results{
-	opacity: 0;
+#scr-results,
+#scr-no-results{
+	display: none;
 }
 #scr-results .card{
 	display: table;

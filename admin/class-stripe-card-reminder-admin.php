@@ -153,6 +153,8 @@ class Stripe_Card_Reminder_Admin {
 							</span>
 						</p>
 					</div>
+
+					<div id="scr-no-results" class="card">No customers cards expire by that date</div>
 					
 					<script type="text/html" id="tmpl-customers">
 					   <div class="single-customer scr-tr">
@@ -345,7 +347,10 @@ class Stripe_Card_Reminder_Admin {
 			}
 		}
 
-		echo wp_send_json( $customers_2_notify );
+		// return false if there are no customers to notify
+		$return = count( $customers_2_notify ) ? $customers_2_notify : false;
+
+		echo wp_send_json( $return );
 
 	}
 
