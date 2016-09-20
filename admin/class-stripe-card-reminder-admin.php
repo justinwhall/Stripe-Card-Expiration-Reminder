@@ -118,57 +118,66 @@ class Stripe_Card_Reminder_Admin {
 		$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'settings';
 		?>
 		<div class="wrap">
-			<h2 class="nav-tab-wrapper">
-			    <a href="?page=stripe-card-reminder&tab=settings" class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
-			    <a href="?page=stripe-card-reminder&tab=run_report" class="nav-tab <?php echo $active_tab == 'run_report' ? 'nav-tab-active' : ''; ?>">Run Report</a>
-			</h2>
-		    <form method="post" action="options.php">
-		    <?php
-				
-				// This prints out all hidden setting fields
-				if ($active_tab === 'settings') {
-
-					settings_fields('scr_settings_group');
-					do_settings_sections('scr-setting-admin');
-					submit_button();
-
-				} else if ($active_tab === 'run_report') {
-
-					do_settings_sections('scr-setting-run-report'); ?>
-
-					<div id="scr-results" >
-						<div class="card">
-						   <div class="single-customer-header scr-tr">
-						   		<span class="scr-tc customer-name"><strong>Customer Name</strong></span>
-						   		<span class="scr-tc customer-email"><strong>Customer Email</strong></span>
-						   		<span class="scr-tc customer-order-id"><strong>Order ID</strong></span>
-					   		</div>
-					   		<div class="customers"></div>
-				   		</div>
-				   		<p class="submit">
-							<input type="button"  name="scr-email-customers" id="scr-email-customers" class="button button-primary" value="Email Customers">
-							<img id="scr-email-loader" src="/wp-admin/images/spinner.gif">
-							<span id="scr-email-success">
-								email success!
-							</span>
-						</p>
-					</div>
-
-					<div id="scr-no-results" class="card">No customers cards expire by that date</div>
+			<?php if ( class_exists( 'WooCommerce' ) ):  ?>
+				<h2 class="nav-tab-wrapper">
+				    <a href="?page=stripe-card-reminder&tab=settings" class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
+				    <a href="?page=stripe-card-reminder&tab=run_report" class="nav-tab <?php echo $active_tab == 'run_report' ? 'nav-tab-active' : ''; ?>">Run Report</a>
+				    <a href="?page=stripe-card-reminder&tab=email" class="nav-tab <?php echo $active_tab == 'email' ? 'nav-tab-active' : ''; ?>">Email</a>
+				</h2>
+			    <form method="post" action="options.php">
+			    <?php
 					
-					<script type="text/html" id="tmpl-customers">
-					   <div class="single-customer scr-tr">
-					   		<span class="scr-tc customer-name">{{{data.name}}}</span>
-					   		<span class="scr-tc customer-email">{{{data.email}}}</span>
-					   		<span class="scr-tc customer-order-id">{{{data.order_id}}}</span>
-				   		</div>
-					</script>
+					// This prints out all hidden setting fields
+					if ($active_tab === 'settings') {
 
-					<?php
-				}
+						settings_fields('scr_settings_group');
+						do_settings_sections('scr-setting-admin');
+						submit_button();
 
-			?>
-		    </form>
+					} else if ($active_tab === 'email') {
+
+						printf( '<p>Email seetings are <a href="/wp-admin/admin.php?page=wc-settings&tab=email&section=wc_card_reminder_email">here</a></p>' );
+
+					} else if ($active_tab === 'run_report') {
+
+						do_settings_sections('scr-setting-run-report'); ?>
+
+						<div id="scr-results" >
+							<div class="card">
+							   <div class="single-customer-header scr-tr">
+							   		<span class="scr-tc customer-name"><strong>Customer Name</strong></span>
+							   		<span class="scr-tc customer-email"><strong>Customer Email</strong></span>
+							   		<span class="scr-tc customer-order-id"><strong>Order ID</strong></span>
+						   		</div>
+						   		<div class="customers"></div>
+					   		</div>
+					   		<p class="submit">
+								<input type="button"  name="scr-email-customers" id="scr-email-customers" class="button button-primary" value="Email Customers">
+								<img id="scr-email-loader" src="/wp-admin/images/spinner.gif">
+								<span id="scr-email-success">
+									email success!
+								</span>
+							</p>
+						</div>
+
+						<div id="scr-no-results" class="card">No customers cards expire by that date</div>
+						
+						<script type="text/html" id="tmpl-customers">
+						   <div class="single-customer scr-tr">
+						   		<span class="scr-tc customer-name">{{{data.name}}}</span>
+						   		<span class="scr-tc customer-email">{{{data.email}}}</span>
+						   		<span class="scr-tc customer-order-id">{{{data.order_id}}}</span>
+					   		</div>
+						</script>
+
+						<?php
+					}
+
+				?>
+			    </form>
+			    <?php else: ?>
+				    <div class="card"> WooCommerce needs to be active for this plugin to work </div>
+		    	<?php endif; ?>
 		</div>
 		<?php
 	}

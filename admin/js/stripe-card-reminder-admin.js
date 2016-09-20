@@ -23,14 +23,15 @@
 				nonce: ajax_object.ajax_nonce 
 			};
 
+			$('#scr-email-customers').prop('disabled', false);
 			$('#scr-results').hide();
+			$('#scr-email-success').hide();
 			$('.scr-loading').show();
 
 			$.ajax({
 				url: ajax_object.ajax_url,
 				data: data,
 				success:function(data){
-					console.log(data);
 					$('.scr-loading').hide();
 					if (data) {
 						$('#scr-results').show();
@@ -51,7 +52,7 @@
 
 			var searchDate = $('.scr-date-picker').val();
 			var data = {
-				action: 'scr_send_email',
+				action: 'scr_build_email',
 				customers:  customers,
 				nonce: ajax_object.ajax_nonce 
 			};
@@ -60,14 +61,13 @@
 
 			$.ajax({
 				url: ajax_object.ajax_url,
-				action: 'scr_send_email',
 				type: "POST",
 				data: data,
 				// dataType: 'json',
 				success:function(data){
-					$('#scr-email-success').css('opacity', 1);
+					$('#scr-email-success').show();
 					$('#scr-email-loader').hide();
-					console.log(data);
+					$('#scr-email-customers').prop('disabled', 'true');
 				}
 			});
 		

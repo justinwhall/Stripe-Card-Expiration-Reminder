@@ -32,7 +32,7 @@
 	display: none;
 }
 #scr-email-success{
-	opacity: 0;
+	display: none;
 }
 #scr-email-success:before{
     color: #79ba49;
