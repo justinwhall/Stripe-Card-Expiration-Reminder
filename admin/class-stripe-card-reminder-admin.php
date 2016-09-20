@@ -286,8 +286,7 @@ class Stripe_Card_Reminder_Admin {
 	public function scr_run_report() {
 		check_ajax_referer('scr_nonce', 'nonce');
 		
-		$date_check = '01/01/2029';
-		// $date_check = $_GET['searchDate'];
+		$date_check = $_GET['searchDate'];
 		$date_check = strtotime($date_check);
 		$subscriptions = WC_Subscriptions_Manager::get_all_users_subscriptions();
 		$customers_2_notify = array();
@@ -350,38 +349,13 @@ class Stripe_Card_Reminder_Admin {
 
 	}
 
-	public function scr_send_email() {
+	public function scr_build_email() {
 		check_ajax_referer('scr_nonce', 'nonce');
 		global $woocommerce;
 		
 		$mailer = $woocommerce->mailer();
 		$scr_email = new WC_Card_Reminder_Email();
 		$scr_email->send_email( $_POST['customers'] );
-
-		// foreach ( $customers as $customer ) {
-			// $this->send( $customer['email'], $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-		// }
-
-
-
-		// $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-		
-		// global $woocommerce;
-
-		// foreach ( $_POST['customers'] as $customer ) {
-		//     $mailer = $woocommerce->mailer();
-
-		//     $message_body = __( 'Hello world!!!' );
-
-		//     $message = $mailer->wrap_message(
-		//         // Message head and message body.
-		//         sprintf( __( 'Your credit card expires soon' ), 'something' ), $message_body );
-
-		//     // Cliente email, email subject and message.
-		//     $mailer->send( $customer['email'], sprintf( __( 'Your credit card expires soon!' ) ), $message );
-		// }
-
-		// die;
 
 		die;
 	}

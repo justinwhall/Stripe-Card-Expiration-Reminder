@@ -150,7 +150,6 @@ class Stripe_Card_Reminder {
 	private function define_admin_hooks() {
 
 		$plugin_admin = new Stripe_Card_Reminder_Admin( $this->get_plugin_name(), $this->get_version() );
-		// $plugin_email = new Stripe_Card_Reminder_Admin();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -158,9 +157,7 @@ class Stripe_Card_Reminder {
 		$this->loader->add_filter( 'admin_menu', $plugin_admin, 'add_settings_menu', 100 );
 		// ajax calls
 		$this->loader->add_action( 'wp_ajax_scr_run_report', $plugin_admin, 'scr_run_report' );
-		$this->loader->add_action( 'wp_ajax_scr_send_email', $plugin_admin, 'scr_send_email' );
-
-		// $this->loader->add_action( 'woocommerce_email_classes', $plugin_admin, 'add_expedited_scr_reminder_email' );
+		$this->loader->add_action( 'wp_ajax_scr_build_email', $plugin_admin, 'scr_build_email' );
 
 	}
 
