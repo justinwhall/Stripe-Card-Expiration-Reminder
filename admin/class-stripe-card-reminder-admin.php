@@ -68,7 +68,7 @@ class Stripe_Card_Reminder_Admin {
 
 		if (isset($_GET['page']) && ($_GET['page'] == 'stripe-card-reminder')) {
 			wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/stripe-card-reminder-admin.css', array(), $this->version, 'all');
-			wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), $this->version, 'all');
+			wp_enqueue_style('jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), $this->version, 'all');
 		}
 
 	}
