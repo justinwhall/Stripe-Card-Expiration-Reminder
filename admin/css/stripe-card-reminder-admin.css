@@ -1,0 +1,42 @@
+#scr-results{
+	opacity: 0;
+}
+#scr-results .card{
+	display: table;
+}
+.scr-loading{
+	display: none;
+}
+.scr-loading img{
+	float: left;
+	margin-right: 5px;
+}
+.scr-tr{
+	display: table-row;
+}
+.scr-tc{
+	display: table-cell;
+	padding: 5px 15px;
+}
+#scr-results .single-customer,
+#scr-results .single-customer-header{
+	margin: 10px 0;
+}
+.src-loading img{
+	float: left; 
+	margin-right: 5px;
+}
+#scr-email-loader{
+	vertical-align: middle;
+	display: none;
+}
+#scr-email-success{
+	opacity: 0;
+}
+#scr-email-success:before{
+    color: #79ba49;
+    content: '\f147';
+    font-family: 'dashicons';
+    vertical-align: top;
+    font-size: 1.6em;
+}
