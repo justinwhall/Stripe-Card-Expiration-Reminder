@@ -116,4 +116,4 @@ class WC_Card_Reminder_Email extends WC_Email {
 			)
 		);
 	}
-} // end \WC_Expedited_Order_Email class
+}

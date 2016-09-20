@@ -66,20 +66,10 @@ class Stripe_Card_Reminder_Admin {
 	 */
 	public function enqueue_styles() {
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Stripe_Card_Reminder_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Stripe_Card_Reminder_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/stripe-card-reminder-admin.css', array(), $this->version, 'all');
-		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), $this->version, 'all');
+		if (isset($_GET['page']) && ($_GET['page'] == 'stripe-card-reminder')) {
+			wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/stripe-card-reminder-admin.css', array(), $this->version, 'all');
+			wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), $this->version, 'all');
+		}
 
 	}
 
@@ -90,29 +80,25 @@ class Stripe_Card_Reminder_Admin {
 	 */
 	public function enqueue_scripts() {
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Stripe_Card_Reminder_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Stripe_Card_Reminder_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_script('jquery-ui-datepicker');
-		// wp_enqueue_script( 'script_handle', plugin_dir_url( __FILE__ ) . 'script.js', array( 'jquery', 'wp-util' ), '1.0', true );
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/stripe-card-reminder-admin.js', array('jquery', 'wp-util'), $this->version, false);
-		wp_localize_script($this->plugin_name, 'ajax_object', array( 'ajax_url' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('scr_nonce') ) );
+		if (isset($_GET['page']) && ($_GET['page'] == 'stripe-card-reminder')) {
+			wp_enqueue_script('jquery-ui-datepicker');
+			wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/stripe-card-reminder-admin.js', array('jquery', 'wp-util'), $this->version, false);
+			wp_localize_script($this->plugin_name, 'ajax_object', array( 'ajax_url' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('scr_nonce') ) );
+		}
 
 	}
 
+	/**
+	 * Adds setting page
+	 */
 	public function add_settings_menu() {
 		add_submenu_page('woocommerce', 'Stripe Card Reminder', 'Stripe Card Reminder', 'manage_options', 'stripe-card-reminder', array($this, 'render_options_page'));
 	}
 
+	/**
+	 * Renders the options page
+	 * @return void
+	 */
 	public function render_options_page() {
 		$this->options = get_option('scr_options');
 		$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'settings';
@@ -183,9 +169,8 @@ class Stripe_Card_Reminder_Admin {
 	}
 
 	/**
-	 * Registers Plugin Settings
-	 *
-	 * @since    1.0.0
+	 * Registers settings
+	 * @return void
 	 */
 	public function scr_register_settings() {
 		register_setting(
@@ -218,15 +203,19 @@ class Stripe_Card_Reminder_Admin {
 
 	}
 
+	/**
+	 * View for running customer report on settings page
+	 * @return void
+	 */
 	public function scr_section_run_report() {
 		include plugin_dir_path(__FILE__) . 'partials/view-run-report.php';
 	}
 
 	/**
-	 * Print the Section text
+	 * Print API notice
 	 */
 	public function print_section_info() {
-		print 'Learn how to get your API key <a target="blank" href="http://windsorup.com/windsor-strava-athlete-wordpress-plugin/">here</a>.';
+		print 'Learn how to get your API key <a target="blank" href="http://justinwhall.com/contact/stripe-credit-card-expire-reminder-wordpress-plugin">here</a>.';
 	}
 
 	/**
@@ -294,6 +283,10 @@ class Stripe_Card_Reminder_Admin {
 		return json_decode($output, true); // return php array with api response
 	}
 
+	/**
+	 * AJAC function that query's customers who have cards that are soon-2-expire
+	 * @return JSON object of customers
+	 */
 	public function scr_run_report() {
 		check_ajax_referer('scr_nonce', 'nonce');
 		
@@ -363,6 +356,10 @@ class Stripe_Card_Reminder_Admin {
 
 	}
 
+	/**
+	 * Builds emails to notify customers
+	 * @return void
+	 */
 	public function scr_build_email() {
 		check_ajax_referer('scr_nonce', 'nonce');
 		global $woocommerce;
