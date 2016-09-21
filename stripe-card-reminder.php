@@ -13,7 +13,7 @@
  * @package           Stripe_Card_Reminder
  *
  * @wordpress-plugin
- * Plugin Name:       Stripe Expired Card Reminder
+ * Plugin Name:       Card Expiration Reminder for Stripe
  * Plugin URI:        http://justinwhall.com
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
  * Version:           1.0.0

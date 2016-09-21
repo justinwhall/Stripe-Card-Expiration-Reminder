@@ -12,7 +12,7 @@ Notify WooCommerce subscription customers of credit cards that are soon to expir
 
 == Description ==
 
-Stripe Card Reminder runs a customizable report and notifies Stripe subscription customers of credit cards that expire soon. Customizable date range and email settings. Notify your customers before their card is declined and have them update their payment method in '/my-account/'
+Card Expiration Reminder for Stripe runs a customizable report and notifies Stripe subscription customers of credit cards that expire soon. Customizable date range and email settings. Notify your customers before their card is declined and have them update their payment method in '/my-account/'
 
 == Installation ==
 
