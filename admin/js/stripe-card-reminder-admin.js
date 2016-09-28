@@ -6,6 +6,23 @@
 		var allSubscriptions;
 		var customerIndex = 0;
 
+		// show customers about to email
+		$('#scr-results-text').on('click', function(event) {
+			event.preventDefault();
+			if ($(this).data( 'state' ) == 'all') {
+
+				$(this).text( 'Show which customers you\'re about to email' );
+				$(this).data( 'state', 'results' );
+
+			} else {
+
+				$(this).text( 'Show all results' );
+				$(this).data( 'state', 'all' );
+
+			}
+			$('.single-customer.false').toggle();
+		});
+
 		$( ".scr-date-picker" ).datepicker( {
 			dateFormat: 'mm/dd/yy'
 		} );
@@ -13,14 +30,19 @@
 		// Query customers 
 		$('#scr-submit-report').on('click', function(event) {
 			event.preventDefault();
+			var searchDate = $('.scr-date-picker').val();
+
+			if( !checkDate( searchDate ) )
+				return false;
 
 			allSubscriptions = false;
 			customerIndex = 0;
 
 			$('.single-customer').remove();
 			$('#scr-no-results').hide();
+			$('#scr-email-customers').hide();
+			$('#scr-results-text').hide();
 
-			var searchDate = $('.scr-date-picker').val();
 			var data = {
 				action: 'scr_count_subscriptions',
 				dataType: 'JSON',
@@ -102,6 +124,8 @@
 						checkCustomers(allSubscriptions);
 					} else{
 						$('.scr-loading').css('opacity', 0);
+						$('#scr-email-customers').show();
+						$('#scr-results-text').show();
 					}
 				}
 			});
@@ -134,6 +158,21 @@
 
 			allSubscriptions = subscriptions;
 			return subscriptions.length;
+		}
+
+		function checkDate(val){
+		  // regular expression to match required date format
+		  var re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+
+		  if(val != '' && !val.match(re)) {
+		    alert("Invalid date format: " + val);
+		    return false;
+		  } else if ( val.length == 0 ){
+		  	alert("Please enter a date :)");
+		  	return false;
+		  }
+
+		  return true;
 		}
 
 	} );

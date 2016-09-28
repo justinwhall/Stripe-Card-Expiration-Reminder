@@ -146,6 +146,7 @@ class Stripe_Card_Reminder_Admin {
 						   		</div>
 						   		<div class="customers"></div>
 					   		</div>
+					   		<a href="#" id="scr-results-text">Show which customers you're about to email</a>
 					   		<p class="submit">
 								<input type="button"  name="scr-email-customers" id="scr-email-customers" class="button button-primary" value="Email Customers">
 								<img id="scr-email-loader" src="/wp-admin/images/spinner.gif">

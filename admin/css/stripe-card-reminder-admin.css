@@ -1,6 +1,7 @@
 #scr-results,
 #scr-no-results,
-#sub-count{
+#sub-count,
+#scr-email-customers {
 	display: none;
 }
 #scr-results .card{
