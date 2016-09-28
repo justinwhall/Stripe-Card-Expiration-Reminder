@@ -41,11 +41,10 @@ class WC_Card_Reminder_Email extends WC_Email {
 	 * @since 0.1
 	 * @param int $order_id
 	 */
-	public function send_email( $customers ) {
+	public function send_email( $emails ) {
 		
 		if ( ! $this->is_enabled() || ! $this->get_recipient() )
 			return;
-
 
 		if ( !strlen( $this->get_option( 'body' ) ) ) {
 			$body = $this->body;
@@ -55,8 +54,8 @@ class WC_Card_Reminder_Email extends WC_Email {
 
 		$message = WC_Emails::wrap_message( $this->get_subject(), $body );
 		
-		foreach ( $customers as $customer ) {
-			$this->send( $customer['email'], $this->get_subject(), $message );
+		foreach ( $emails as $email ) {
+			$this->send( $email, $this->get_subject(), $message );
 		}
 
 	}

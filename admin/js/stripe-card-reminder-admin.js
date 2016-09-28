@@ -3,7 +3,8 @@
 
 	$( function() {
 
-		var customers = {};
+		var allSubscriptions;
+		var customerIndex = 0;
 
 		$( ".scr-date-picker" ).datepicker( {
 			dateFormat: 'mm/dd/yy'
@@ -13,34 +14,35 @@
 		$('#scr-submit-report').on('click', function(event) {
 			event.preventDefault();
 
+			allSubscriptions = false;
+			customerIndex = 0;
+
+			$('.single-customer').remove();
 			$('#scr-no-results').hide();
 
 			var searchDate = $('.scr-date-picker').val();
 			var data = {
-				action: 'scr_run_report',
+				action: 'scr_count_subscriptions',
 				dataType: 'JSON',
 				searchDate: searchDate,
 				nonce: ajax_object.ajax_nonce 
 			};
 
+			$('#scr-results .ex-by').text( searchDate );
 			$('#scr-email-customers').prop('disabled', false);
-			$('#scr-results').hide();
 			$('#scr-email-success').hide();
-			$('.scr-loading').show();
+			$('.scr-loading').css('opacity', 1);
 
 			$.ajax({
 				url: ajax_object.ajax_url,
 				data: data,
 				success:function(data){
-					$('.scr-loading').hide();
-					if (data) {
-						$('#scr-results').show();
-						$('#customer-json').data('customers', data);
-						customers = data;
-						appendCustomers( data );
-					} else {
-						$('#scr-no-results').show();
-					}
+
+					$('#sub-count .numb-sub').text( countSubscriptions( data ));
+					$('#sub-count').show();
+					$('#scr-results').show();
+					checkCustomers( allSubscriptions );
+
 				}
 			});
 		
@@ -50,10 +52,14 @@
 		$('#scr-email-customers').on('click', function(event) {
 			event.preventDefault();
 
-			var searchDate = $('.scr-date-picker').val();
+			var emails = [];
+			$.each($('.single-customer.true .customer-email'), function(index, val) {
+				emails[index] = $(val).text();
+			});
+
 			var data = {
 				action: 'scr_build_email',
-				customers:  customers,
+				customers:  emails,
 				nonce: ajax_object.ajax_nonce 
 			};
 
@@ -63,7 +69,6 @@
 				url: ajax_object.ajax_url,
 				type: "POST",
 				data: data,
-				// dataType: 'json',
 				success:function(data){
 					$('#scr-email-success').show();
 					$('#scr-email-loader').hide();
@@ -73,22 +78,62 @@
 		
 		});
 
+		function checkCustomers( allSubs ) {
 
-		function appendCustomers( data ) {
+			var searchDate = $('.scr-date-picker').val();
+			var data = {
+				action: 'scr_check_customer',
+				customer:  allSubs[customerIndex],
+				searchDate:  searchDate,
+				nonce: ajax_object.ajax_nonce 
+			};
+
+			$.ajax({
+				url: ajax_object.ajax_url,
+				type: "POST",
+				data: data,
+				success:function(data){
+					console.log(data);
+					var checked = customerIndex + 1;
+					$('#sub-count .numb-checked').text( checked );
+					appendCustomer( data );
+					customerIndex++;
+					if (customerIndex < allSubscriptions.length) {
+						checkCustomers(allSubscriptions);
+					} else{
+						$('.scr-loading').css('opacity', 0);
+					}
+				}
+			});
+		}
+
+		function appendCustomer( data ) {
 			
-			$('.single-customer').remove();
+			var template = wp.template( 'customers' );
+			$('#scr-results .card').append( 
+				template( { 
+					name: data.customer_meta.name, 
+					email: data.customer_meta.email, 
+					order_id: data.customer_meta.order_id, 
+					is_expires: data.is_expire,
+					error: data.customer_meta.error
+				} ) 
+			);
+
+		}
+
+		function countSubscriptions( data ) {
+			var count = 0;
+			var subscriptions = [];
 
 			$.each(data, function(index, val) {
-				var template = wp.template( 'customers' );
-				$('#scr-results .card').append( 
-					template( { 
-						name: val.name, 
-						email: val.email, 
-						order_id: val.order_id, 
-					} ) 
-				);
-
+				$.each(val, function(index, sub) {
+					subscriptions.push( sub );
+				});
 			});
+
+			allSubscriptions = subscriptions;
+			return subscriptions.length;
 		}
 
 	} );

@@ -1,12 +1,14 @@
 #scr-results,
-#scr-no-results{
+#scr-no-results,
+#sub-count{
 	display: none;
 }
 #scr-results .card{
 	display: table;
+	max-width: none;
 }
 .scr-loading{
-	display: none;
+	opacity: 0;
 }
 .scr-loading img{
 	float: left;
@@ -18,6 +20,10 @@
 .scr-tc{
 	display: table-cell;
 	padding: 5px 15px;
+	max-width: 350px;
+}
+.single-customer.true{
+	background: #FEA3A9;
 }
 #scr-results .single-customer,
 #scr-results .single-customer-header{

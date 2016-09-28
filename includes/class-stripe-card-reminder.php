@@ -156,7 +156,8 @@ class Stripe_Card_Reminder {
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'scr_register_settings' );
 		$this->loader->add_filter( 'admin_menu', $plugin_admin, 'add_settings_menu', 100 );
 		// ajax calls
-		$this->loader->add_action( 'wp_ajax_scr_run_report', $plugin_admin, 'scr_run_report' );
+		$this->loader->add_action( 'wp_ajax_scr_count_subscriptions', $plugin_admin, 'scr_count_subscriptions' );
+		$this->loader->add_action( 'wp_ajax_scr_check_customer', $plugin_admin, 'scr_check_customer' );
 		$this->loader->add_action( 'wp_ajax_scr_build_email', $plugin_admin, 'scr_build_email' );
 
 	}

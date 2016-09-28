@@ -122,11 +122,18 @@ class Stripe_Card_Reminder_Admin {
 
 					} else if ($active_tab === 'email') {
 
-						printf( '<p>Email seetings are <a href="/wp-admin/admin.php?page=wc-settings&tab=email&section=wc_card_reminder_email">here</a></p>' );
+						printf( '<p>Email settings are <a href="/wp-admin/admin.php?page=wc-settings&tab=email&section=wc_card_reminder_email">here</a></p>' );
 
 					} else if ($active_tab === 'run_report') {
 
-						do_settings_sections('scr-setting-run-report'); ?>
+						do_settings_sections('scr-setting-run-report'); 
+
+						?>
+
+						<div id="sub-count" class="card">
+						 	<div>Customers with subscriptions found: <span class="numb-sub"></span></div>
+						 	<div>Customers with subscriptions checked: <span class="numb-checked">0</span></div>
+						</div>
 
 						<div id="scr-results" >
 							<div class="card">
@@ -134,6 +141,8 @@ class Stripe_Card_Reminder_Admin {
 							   		<span class="scr-tc customer-name"><strong>Customer Name</strong></span>
 							   		<span class="scr-tc customer-email"><strong>Customer Email</strong></span>
 							   		<span class="scr-tc customer-order-id"><strong>Order ID</strong></span>
+							   		<span class="scr-tc customer-order-id"><strong>Expires by <span class="ex-by"></span></strong></span>
+							   		<span class="scr-tc customer-error"><strong>Error</strong></span>
 						   		</div>
 						   		<div class="customers"></div>
 					   		</div>
@@ -145,14 +154,14 @@ class Stripe_Card_Reminder_Admin {
 								</span>
 							</p>
 						</div>
-
-						<div id="scr-no-results" class="card">No customers cards expire by that date</div>
 						
 						<script type="text/html" id="tmpl-customers">
-						   <div class="single-customer scr-tr">
+						   <div class="single-customer scr-tr {{{data.is_expires}}}">
 						   		<span class="scr-tc customer-name">{{{data.name}}}</span>
 						   		<span class="scr-tc customer-email">{{{data.email}}}</span>
 						   		<span class="scr-tc customer-order-id">{{{data.order_id}}}</span>
+						   		<span class="scr-tc customer-expires">{{{data.is_expires}}}</span>
+						   		<span class="scr-tc customer-expires">{{{data.error}}}</span>
 					   		</div>
 						</script>
 
@@ -287,72 +296,88 @@ class Stripe_Card_Reminder_Admin {
 	 * AJAC function that query's customers who have cards that are soon-2-expire
 	 * @return JSON object of customers
 	 */
-	public function scr_run_report() {
+	public function scr_count_subscriptions() {
 		check_ajax_referer('scr_nonce', 'nonce');
 		
 		$date_check = $_GET['searchDate'];
 		$date_check = strtotime($date_check);
-		$subscriptions = WC_Subscriptions_Manager::get_all_users_subscriptions();
-		$customers_2_notify = array();
-
-		if ( is_array( $subscriptions ) ) {
-
-			foreach ( $subscriptions as $key => $sub ) {
-				
-				$sub_meta = get_post_meta( $sub['order_id'] );
-				$url = 'https://api.stripe.com/v1/customers/' . $sub_meta['_stripe_customer_id'][0];
-				
-				// no need to check of subscription isn't active...
-				if ( $sub['status'] === 'active' ) {
-					
-					$customer = $this->call_stripe( $url );
-					
-					// Make sure the customer exists in their stripe account
-					if (!array_key_exists( 'error', $customer ) && is_array( $customer['sources']['data'] ) && count( $customer['sources']['data'] ) ) {
-						
-						// Possible for a customer to have more than on credit card on file.
-						$customer_is_current = true;
-						$customer_meta = array();
-
-						foreach ( $customer['sources']['data'] as $payment_method ) {
-
-							if ( $payment_method['object'] === 'card' ) {
-
-								$card_ex = '01/' . $payment_method['exp_month'] . '/' . $payment_method['exp_year'];
-								$card_n = $card_ex;
-								$card_ex = strtotime($card_ex);
-
-								// check if expire date is after date set by user
-								if ($card_ex < $date_check) {
-									
-									$customer_is_current = false;
-
-								}
-								
-								if ( !$customer_is_current ) {
-									
-									$customer_name = $sub_meta['_billing_first_name'][0] . ' '. $sub_meta['_billing_last_name'][0];
-									$customer_meta['name'] = $customer_name;
-									$customer_meta['email'] = $sub_meta['_billing_email'][0];
-									$customer_meta['order_id'] = $sub['order_id'];
-
-									if ( !array_key_exists( $customer_name, $customer_meta ) ) {
-										
-										$customers_2_notify[$customer_name] = $customer_meta;
-
-									}
-								}
-							}
-						}
-					}
-				}
+		$subscriptions = array();
+		
+		foreach ( get_users() as $user ) {
+			if ( count( wcs_get_users_subscriptions( $user->ID ) ) ) {
+				$subscriptions[] = wcs_get_users_subscriptions( $user->ID );
 			}
 		}
 
-		// return false if there are no customers to notify
-		$return = count( $customers_2_notify ) ? $customers_2_notify : false;
-
+		// return false if there are no subscriptions
+		$return = count( $subscriptions ) ? array_values( $subscriptions ) : false;
 		echo wp_send_json( $return );
+
+	}
+
+	public function scr_check_customer() {
+		
+			$return =  array();
+			$sub_meta = get_post_meta( $_POST['customer']['id'] );
+			$customer = false;
+
+			// If for some reason we can't find a post
+			if ( !$sub_meta )
+				return false;
+
+			if ( $sub_meta['_stripe_customer_id'][0] ) {
+				$url = 'https://api.stripe.com/v1/customers/' . $sub_meta['_stripe_customer_id'][0];
+				$customer = $this->call_stripe( $url );
+			} else {
+				$error = 'No card on file for this subscription';
+				$notify_customer = false;
+			}
+			
+
+			if (array_key_exists( 'error', $customer))  {
+				$error = $customer['error']['message'];
+				$notify_customer = false;
+			}
+
+			// Make sure the customer exists in their stripe account
+			if (is_array( $customer['sources']['data'] ) && count( $customer['sources']['data'] ) ) {
+				
+				// Possible for a customer to have more than on credit card on file.
+				$error = false;
+				$notify_customer = false;
+				$customer_meta = array();
+
+				foreach ( $customer['sources']['data'] as $payment_method ) {
+
+					if ( $payment_method['object'] === 'card' ) {
+
+						$card_ex = '01/' . $payment_method['exp_month'] . '/' . $payment_method['exp_year'];
+						$card_n = $card_ex;
+						$card_ex = strtotime($card_ex);
+						$search_date = strtotime($_POST['searchDate']);
+
+						// check if expire date is after date set by user
+						if ( $card_ex < $search_date ) {
+							
+							$notify_customer = true;
+
+						}
+
+					}
+				}					
+
+			} 
+
+			$customer_name = $sub_meta['_billing_first_name'][0] . ' '. $sub_meta['_billing_last_name'][0];
+			$customer_meta['name'] = $customer_name;
+			$customer_meta['email'] = $sub_meta['_billing_email'][0];
+			$customer_meta['order_id'] = $_POST['customer']['id'];
+			$customer_meta['error'] = $error;
+
+			$return['is_expire'] = $notify_customer;
+			$return['customer_meta'] = $customer_meta;
+
+			echo wp_send_json( $return );
 
 	}
 
